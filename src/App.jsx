@@ -6,15 +6,15 @@ import './App.css'
 function App() {  
   return (
    <div>
-    <Board/>
+    <Game/>
    </div>
   )
 }
 
-function Board(){
+function Board({ xIsNext, squares, onPlay }){
   
-  const[xIsNext, setXIsNext] = useState(true);
-  const[squares, setSquares] = useState(Array(9).fill(null));
+  // const[xIsNext, setXIsNext] = useState(true);
+  // const[squares, setSquares] = useState(Array(9).fill(null));
 
   function handleClick(indice){
 
@@ -34,8 +34,9 @@ function Board(){
       nextSquares[indice] = 'O';
     }
 
-    setSquares(nextSquares);
-    setXIsNext(!xIsNext);
+    onPlay(nextSquares);
+    // setSquares(nextSquares);
+    // setXIsNext(!xIsNext);
 
   }
 
@@ -98,4 +99,54 @@ function Square({value, onSquareClick}){
 }
 
 
+function Game(){
+  // const [xIsNext, setXIsNext] = useState(true);
+  const [history, setHistory] = useState([Array(9).fill(null)]);
+  const [currentMove, setCurrentMove] = useState(0);
+  const xIsNext = currentMove % 2 === 0;
+  const currentSquares = history[currentMove];
+
+  function handlePlay(nextSquares) {
+    
+    const nextHistory = [...history.slice(0, currentMove + 1), nextSquares];
+    setHistory(nextHistory);
+    setCurrentMove(nextHistory.length - 1);
+
+    console.log(nextHistory);
+
+  }
+
+  function jumpTo(nextMove){
+
+    setCurrentMove(nextMove);
+    
+  }
+
+  const moves = history.map((squares, move) =>{
+    let description;
+
+    if(move > 0){
+      description = "Go to move #" + move;
+    }else{
+      description = "Go to game start";
+    }
+
+    return (
+      <li key={move}>
+        <button onClick={() => jumpTo(move)}>{description}</button>
+      </li>
+    )
+  })
+
+  return (
+    <div className="game">
+      <div className="game-board">
+        <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
+      </div>
+      <div className="game-info">
+        <ol>{moves}</ol>
+      </div>
+    </div>
+  )
+}
 export default App
